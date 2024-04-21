@@ -1,3 +1,3 @@
-## 0.0.1
+## 0.0.2
 
-* TODO: Describe initial release.
+- Add `Reebox` class to create a custom dialog box with a title, message, and buttons.

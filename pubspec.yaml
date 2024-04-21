@@ -1,7 +1,7 @@
 name: reebox
 description: Reebox help you create beautiful box.
 version: 0.0.2
-homepage:
+homepage: https://github.com/quandat10/reebox
 
 environment:
   sdk: '>=3.1.1 <4.0.0'
