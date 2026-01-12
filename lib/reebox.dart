@@ -1,35 +1,43 @@
-library reebox;
-
 import 'package:flutter/material.dart';
 
-class ReeBox extends StatefulWidget {
-  final Widget children;
+class ReeButton extends StatefulWidget {
+  final Widget child;
   final Color? outlineColor;
-  final double height;
-  final double width;
+  final Color? primaryColor;
+  final double? height;
+  final double? width;
+  final double borderRadius;
   final double strokeWidth;
-  final bool isCenter;
   final Function()? onClick;
-  const ReeBox(
-      {super.key,
-      required this.children,
-      required this.height,
-      this.outlineColor = Colors.blue,
-      this.strokeWidth = 1,
-      this.onClick,
-      this.isCenter = false,
-      required this.width});
+  final EdgeInsetsGeometry? padding;
+  final bool disable;
+  final bool loading;
+
+  const ReeButton({
+    super.key,
+    required this.child,
+    this.height,
+    this.outlineColor = Colors.black,
+    this.primaryColor = Colors.white,
+    this.strokeWidth = 1,
+    this.onClick,
+    this.borderRadius = 8,
+    this.padding,
+    this.width,
+    this.disable = false,
+    this.loading = false,
+  });
 
   @override
-  State<ReeBox> createState() => _BoxState();
+  State<ReeButton> createState() => _BoxState();
 }
 
-class _BoxState extends State<ReeBox> {
+class _BoxState extends State<ReeButton> {
   bool isTouched = false;
-  EdgeInsetsGeometry marginTapTop = const EdgeInsets.only(bottom: 6, right: 6);
+  bool isProcessing = false;
+  EdgeInsetsGeometry marginTapBottom = const EdgeInsets.only(top: 3);
   EdgeInsetsGeometry marginDefault =
-      const EdgeInsets.only(bottom: 3, right: 3, top: 3, left: 3);
-  EdgeInsetsGeometry marginTapBottom = const EdgeInsets.only(top: 6, left: 6);
+  EdgeInsets.only(bottom: 3);
 
   EdgeInsetsGeometry animatedPositionBottom(bool isTouch) {
     if (isTouch) {
@@ -39,64 +47,90 @@ class _BoxState extends State<ReeBox> {
     return marginDefault;
   }
 
-  EdgeInsetsGeometry animatedPositionTop(bool isTouch) {
-    if (isTouch) {
-      return marginTapTop;
-    }
-
-    return marginDefault;
-  }
-
   @override
   Widget build(BuildContext context) {
+    Widget content = widget.child;
+    if (widget.loading) {
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+            ),
+          ),
+          const SizedBox(width: 8),
+          widget.child,
+        ],
+      );
+    }
+
+    final effectivePrimaryColor = widget.disable ? Colors.grey[300] : (widget.primaryColor ?? Colors.white);
+    final effectiveOutlineColor = widget.disable ? Colors.grey[400] : (widget.outlineColor ?? Colors.black54);
+    final effectiveBorderColor = widget.disable ? Colors.grey : Colors.black87;
+
     return Listener(
       onPointerDown: (a) {
-        setState(() {
-          isTouched = true;
-        });
+        if (!widget.disable && !widget.loading) {
+          setState(() {
+            isTouched = true;
+          });
+        }
       },
       onPointerUp: (a) {
-        setState(() {
-          isTouched = false;
-        });
+        if (!widget.disable && !widget.loading) {
+          setState(() {
+            isTouched = false;
+          });
+        }
       },
       child: InkWell(
-        onTap: widget.onClick,
-        child: Stack(
-          children: [
-            AnimatedContainer(
-              width: widget.width,
-              height: widget.height,
-              alignment: Alignment.bottomRight,
-              margin: animatedPositionBottom(isTouched),
-              duration: const Duration(milliseconds: 200),
-              decoration: BoxDecoration(
-                color: widget.outlineColor,
-                borderRadius: BorderRadius.circular(12),
-                border:
-                    Border.all(width: widget.strokeWidth, color: Colors.black),
-              ),
-            ),
-            AnimatedContainer(
-              width: widget.width,
-              height: widget.height,
-              margin: animatedPositionTop(isTouched),
-              duration: const Duration(milliseconds: 200),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      width: widget.strokeWidth, color: Colors.black),
+        onTap: widget.disable || widget.loading
+            ? null
+            : widget.onClick,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        child: IntrinsicWidth(
+          child: IntrinsicHeight(
+            child: Stack(
+              children: [
+                AnimatedContainer(
+                  width: widget.width,
+                  height: widget.height,
+                  margin: EdgeInsets.only(top: 3),
+                  alignment: Alignment.bottomRight,
+                  duration: const Duration(milliseconds: 200),
+                  decoration: BoxDecoration(
+                    color: effectiveOutlineColor,
+                    borderRadius: BorderRadius.circular(widget.borderRadius),
+                  ),
                 ),
-                child: widget.isCenter
-                    ? Center(
-                        child: widget.children,
-                      )
-                    : widget.children,
-              ),
-            )
-          ],
+                AnimatedContainer(
+                  width: widget.width,
+                  height: widget.height,
+                  margin: animatedPositionBottom(isTouched),
+                  duration: const Duration(milliseconds: 200),
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: widget.padding ??
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: effectivePrimaryColor,
+                      borderRadius: BorderRadius.circular(widget.borderRadius),
+                      border: Border.all(
+                        width: widget.strokeWidth,
+                        color: effectiveBorderColor,
+                      ),
+                    ),
+                    child: content,
+                  ),
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );

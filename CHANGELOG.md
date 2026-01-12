@@ -1,3 +1,3 @@
-## 0.0.2
+## 0.0.7
 
-- Add `Reebox` class to create a custom dialog box with a title, message, and buttons.
+- Chore: update children -> child
