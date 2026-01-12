@@ -21,3 +21,4 @@ For help getting started with Flutter, view the online [documentation](https://f
 
 []: # (end)
 
+─ flutter pub publish --dry-run
