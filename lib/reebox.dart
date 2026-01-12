@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+enum ShadowMode {
+  v1,
+  v2,
+}
+
 class ReeButton extends StatefulWidget {
   final Widget child;
   final Color? outlineColor;
@@ -12,6 +17,7 @@ class ReeButton extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
   final bool disable;
   final bool loading;
+  final ShadowMode shadowMode;
 
   const ReeButton({
     super.key,
@@ -19,13 +25,14 @@ class ReeButton extends StatefulWidget {
     this.height,
     this.outlineColor = Colors.black,
     this.primaryColor = Colors.white,
-    this.strokeWidth = 1,
+    this.strokeWidth = 2,
     this.onClick,
     this.borderRadius = 8,
     this.padding,
     this.width,
     this.disable = false,
     this.loading = false,
+    this.shadowMode = ShadowMode.v1,
   });
 
   @override
@@ -35,13 +42,33 @@ class ReeButton extends StatefulWidget {
 class _BoxState extends State<ReeButton> {
   bool isTouched = false;
   bool isProcessing = false;
-  EdgeInsetsGeometry marginTapBottom = const EdgeInsets.only(top: 3);
-  EdgeInsetsGeometry marginDefault =
-  EdgeInsets.only(bottom: 3);
+  EdgeInsetsGeometry marginTapBottomV1 = const EdgeInsets.only(top: 3);
+  EdgeInsetsGeometry marginTapBottomV2 = const EdgeInsets.only(top: 3, left: 3);
+  EdgeInsetsGeometry marginTapTopV1 = const EdgeInsets.only(bottom: 3);
+  EdgeInsetsGeometry marginTapTopV2 =
+  const EdgeInsets.only(bottom: 3, right: 3);
+  late EdgeInsetsGeometry marginDefault = widget.shadowMode == ShadowMode.v1
+      ? const EdgeInsets.only(bottom: 3)
+      : const EdgeInsets.only(bottom: 3, right: 3);
 
   EdgeInsetsGeometry animatedPositionBottom(bool isTouch) {
     if (isTouch) {
-      return marginTapBottom;
+      if (widget.shadowMode == ShadowMode.v1) {
+        return marginTapBottomV1;
+      }
+      return marginTapBottomV2;
+    }
+
+    return marginDefault;
+  }
+
+  EdgeInsetsGeometry animatedPositionTop(bool isTouch) {
+    if (isTouch) {
+      if (widget.shadowMode == ShadowMode.v1) {
+        return marginTapTopV1;
+      }
+
+      return marginTapTopV2;
     }
 
     return marginDefault;
@@ -68,8 +95,12 @@ class _BoxState extends State<ReeButton> {
       );
     }
 
-    final effectivePrimaryColor = widget.disable ? Colors.grey[300] : (widget.primaryColor ?? Colors.white);
-    final effectiveOutlineColor = widget.disable ? Colors.grey[400] : (widget.outlineColor ?? Colors.black54);
+    final effectivePrimaryColor = widget.disable
+        ? Colors.grey[300]
+        : (widget.primaryColor ?? Colors.white);
+    final effectiveOutlineColor = widget.disable
+        ? Colors.grey[400]
+        : (widget.outlineColor ?? Colors.black54);
     final effectiveBorderColor = widget.disable ? Colors.grey : Colors.black87;
 
     return Listener(
@@ -88,9 +119,7 @@ class _BoxState extends State<ReeButton> {
         }
       },
       child: InkWell(
-        onTap: widget.disable || widget.loading
-            ? null
-            : widget.onClick,
+        onTap: widget.disable || widget.loading ? null : widget.onClick,
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         child: IntrinsicWidth(
@@ -100,7 +129,9 @@ class _BoxState extends State<ReeButton> {
                 AnimatedContainer(
                   width: widget.width,
                   height: widget.height,
-                  margin: EdgeInsets.only(top: 3),
+                  margin: widget.shadowMode == ShadowMode.v1
+                      ? EdgeInsets.only(top: 3)
+                      : EdgeInsets.only(top: 3, left: 3),
                   alignment: Alignment.bottomRight,
                   duration: const Duration(milliseconds: 200),
                   decoration: BoxDecoration(
@@ -111,7 +142,7 @@ class _BoxState extends State<ReeButton> {
                 AnimatedContainer(
                   width: widget.width,
                   height: widget.height,
-                  margin: animatedPositionBottom(isTouched),
+                  margin: widget.onClick == null ? marginDefault : animatedPositionBottom(isTouched),
                   duration: const Duration(milliseconds: 200),
                   child: Container(
                     alignment: Alignment.center,
