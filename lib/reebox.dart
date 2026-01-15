@@ -9,6 +9,7 @@ class ReeButton extends StatefulWidget {
   final Widget child;
   final Color? outlineColor;
   final Color? primaryColor;
+  final Color? borderColor;
   final double? height;
   final double? width;
   final double borderRadius;
@@ -27,6 +28,7 @@ class ReeButton extends StatefulWidget {
     this.outlineColor = Colors.black,
     this.primaryColor = Colors.white,
     this.strokeWidth = 2,
+    this.borderColor = Colors.black,
     this.onClick,
     this.borderRadius = 8,
     this.padding,
@@ -103,7 +105,8 @@ class _BoxState extends State<ReeButton> {
     final effectiveOutlineColor = widget.disable
         ? Colors.grey[400]
         : (widget.outlineColor ?? Colors.black54);
-    final effectiveBorderColor = widget.disable ? Colors.grey : Colors.black87;
+    final borderColor = widget.borderColor ?? Colors.black;
+    final effectiveBorderColor = widget.disable ? Colors.grey : borderColor;
 
     return Listener(
       onPointerDown: (a) {
@@ -139,6 +142,10 @@ class _BoxState extends State<ReeButton> {
                   decoration: BoxDecoration(
                     color: effectiveOutlineColor,
                     borderRadius: BorderRadius.circular(widget.borderRadius),
+                    border: Border.all(
+                      width: widget.strokeWidth,
+                      color: effectiveBorderColor,
+                    ),
                   ),
                 ),
                 AnimatedContainer(
