@@ -18,6 +18,7 @@ class ReeButton extends StatefulWidget {
   final bool disable;
   final bool loading;
   final ShadowMode shadowMode;
+  final bool isCenter;
 
   const ReeButton({
     super.key,
@@ -33,6 +34,7 @@ class ReeButton extends StatefulWidget {
     this.disable = false,
     this.loading = false,
     this.shadowMode = ShadowMode.v1,
+    this.isCenter = true,
   });
 
   @override
@@ -145,7 +147,7 @@ class _BoxState extends State<ReeButton> {
                   margin: widget.onClick == null ? marginDefault : animatedPositionBottom(isTouched),
                   duration: const Duration(milliseconds: 200),
                   child: Container(
-                    alignment: Alignment.center,
+                    alignment: widget.isCenter ? Alignment.center : null,
                     padding: widget.padding ??
                         const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
                     decoration: BoxDecoration(
